@@ -15,8 +15,8 @@ function App () {
   let [ characters, setCharacters ] = useState([])
 
   const [ access, setAccess] = useState(false);
-  const EMAIL = 'meli@gmail.com';
-  const PASSWORD = "1234meli"
+  // const EMAIL = 'ivan@gmail.com';
+  // const PASSWORD = "1234ivan"
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -36,49 +36,52 @@ function App () {
       alert('Character not found');
     }
   })
-}
-
-
-const login = (userData) => {
-  if(userData.password === PASSWORD && userData.email === EMAIL) {
-    setAccess(true)
-    navigate('/home')
   }
-}
 
-useEffect(()=> {
-  !access && navigate('/')
-}, [access])
 
-const onClose = (id) => {
-  setCharacters(
-    characters.filter((character) => character.id !== Number(id))
-  )
-}
-  return (
-    <div className='container'>
-        
-          { pathname !== '/' && 
-            <Nav 
-              onSearch = {onSearch}
-              setAccess ={setAccess}
-            /> }
-        
-        <Routes>
+  const login = (userData) => {
+    const { email, password } = userData;
+    const URL = 'http://localhost:3001/rickandmorty/login/';
+    axios(URL + `?email=${email}&password=${password}`).then(({ data }) => {
+     const { access } = data;
+     setAccess(data);
+     access && navigate('/home');
+    });
+  }
 
-          <Route path='/'  element= {<Form login= {login} />}/>
+  useEffect(()=> {
+    !access && navigate('/')
+  }, [access])
 
-          <Route  path="/home" element={<Cards characters= {characters} onClose = {onClose}/> }/>
+  const onClose = (id) => {
+    setCharacters(
+      characters.filter((character) => character.id !== Number(id))
+    )
+  }
+    return (
+      <div className='container'>
+          
+            { pathname !== '/' && 
+              <Nav 
+                onSearch = {onSearch}
+                setAccess ={setAccess}
+              /> }
+          
+          <Routes>
 
-          <Route  path="/about" element={<About/>}/>
+            <Route path='/'  element= {<Form login= {login} />}/>
 
-          <Route  path='/detail/:id' element={<Detail/>}/>
+            <Route  path="/home" element={<Cards characters= {characters} onClose = {onClose}/> }/>
 
-          <Route path='/favorites' element={<Favorites/>}/>
+            <Route  path="/about" element={<About/>}/>
 
-        </Routes>
-    </div>
-  )
+            <Route  path='/detail/:id' element={<Detail/>}/>
+
+            <Route path='/favorites' element={<Favorites/>}/>
+
+          </Routes>
+      </div>
+    )
 }
 
 export default App
